@@ -1,0 +1,44 @@
+@startuml
+skinparam classAttributeIconSize 0
+package "State" {
+  interface IAtmState { +Name; +InsertCard(card); +PressDigit(d); +PressEnter(); +PressCancel() }
+  abstract class AtmState
+  class IdleState
+  class CardInsertedState
+  class PinEntryState
+  class DispensingState
+  class BlockedState
+  class Atm <<Context>> { -_state: IAtmState; +SetState(); +EjectCard() }
+}
+package "Chain of Responsibility" {
+  abstract class BanknoteHandler { -_next; +Handle(result); +Commit(result) }
+  class Note100Handler
+  class Note50Handler
+  class Note20Handler
+  class Note10Handler
+  class Note5Handler
+  class DispenseResult
+}
+class CashDispenser { +TryDispense(amount) }
+class Bank
+class Card
+IAtmState <|.. AtmState
+AtmState <|-- IdleState
+AtmState <|-- CardInsertedState
+AtmState <|-- PinEntryState
+AtmState <|-- DispensingState
+AtmState <|-- BlockedState
+Atm o--> IAtmState : текущее состояние
+AtmState --> Atm
+Atm --> Bank
+Atm --> Card
+Atm --> CashDispenser
+BanknoteHandler <|-- Note100Handler
+BanknoteHandler <|-- Note50Handler
+BanknoteHandler <|-- Note20Handler
+BanknoteHandler <|-- Note10Handler
+BanknoteHandler <|-- Note5Handler
+BanknoteHandler --> BanknoteHandler : next
+BanknoteHandler ..> DispenseResult
+CashDispenser --> BanknoteHandler : first
+@enduml
